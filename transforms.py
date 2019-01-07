@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-
+from PIL import Image
 
 class ToTensor:
     def __call__(self, data):
@@ -25,3 +25,11 @@ class Normalize:
         image = np.asarray(image).astype(np.float32) / 255.
         image = (image - self.mean) / self.std
         return image
+
+class Np2pil:
+    def __call__(self, data):
+        if isinstance(data, np.ndarray):
+            return Image.fromarray(data)
+        else:
+            return data
+        

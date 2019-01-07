@@ -16,23 +16,36 @@ class Dataset:
     def __init__(self, config):
         self.config = config
         dataset_rootdir = pathlib.Path('~/.torchvision/datasets').expanduser()
-        self.dataset_dir = dataset_rootdir / config['dataset']
+        if self.config['dataset'] == 'KMNIST':
+            self.dataset_dir = pathlib.Path('~/data/Kuzushiji/Kuzushiji-MNIST').expanduser()
+        elif self.config['dataset'] == 'K49':
+            self.dataset_dir = pathlib.Path('~/data/Kuzushiji/Kuzushiji-49').expanduser()
+        else:
+            self.dataset_dir = dataset_rootdir / config['dataset']
 
         self._train_transforms = []
         self.train_transform = self._get_train_transform()
         self.test_transform = self._get_test_transform()
 
     def get_datasets(self):
-        train_dataset = getattr(torchvision.datasets, self.config['dataset'])(
-            self.dataset_dir,
-            train=True,
-            transform=self.train_transform,
-            download=True)
-        test_dataset = getattr(torchvision.datasets, self.config['dataset'])(
-            self.dataset_dir,
-            train=False,
-            transform=self.test_transform,
-            download=True)
+        if self.config['dataset'] in ['KMNIST', 'K49']:
+            train_dataset = torchvision.datasets.ImageFolder(
+                self.dataset_dir / 'train',
+                transform=self.train_transform)
+            test_dataset = torchvision.datasets.ImageFolder(
+                self.dataset_dir / 'test',
+                transform=self.test_transform)
+        else:
+            train_dataset = getattr(torchvision.datasets, self.config['dataset'])(
+                self.dataset_dir,
+                train=True,
+                transform=self.train_transform,
+                download=True)
+            test_dataset = getattr(torchvision.datasets, self.config['dataset'])(
+                self.dataset_dir,
+                train=False,
+                transform=self.test_transform,
+                download=True)
         return train_dataset, test_dataset
 
     def _add_random_crop(self):
@@ -46,9 +59,16 @@ class Dataset:
 
     def _add_normalization(self):
         self._train_transforms.append(
+            torchvision.transforms.Normalize(self.mean, self.std))
+
+    def _add_normalization_custom(self):
+        self._train_transforms.append(
             transforms.Normalize(self.mean, self.std))
 
     def _add_to_tensor(self):
+        self._train_transforms.append(torchvision.transforms.ToTensor())
+
+    def _add_to_tensor_custom(self):
         self._train_transforms.append(transforms.ToTensor())
 
     def _add_random_erasing(self):
@@ -71,26 +91,46 @@ class Dataset:
             self.config['cutout_inside'])
         self._train_transforms.append(transform)
 
+    def _add_grayscale(self):
+        self._train_transforms.append(torchvision.transforms.Grayscale(1))
+
+    def _add_np2pil(self):
+        self._train_transforms.append(transforms.Np2pil())
+
     def _get_train_transform(self):
         if self.config['use_random_crop']:
             self._add_random_crop()
         if self.config['use_horizontal_flip']:
-            self._add_horizontal_flip()
-        self._add_normalization()
+            self._add_horizontal_flip()        
         if self.config['use_random_erasing']:
             self._add_random_erasing()
         if self.config['use_cutout']:
             self._add_cutout()
         elif self.config['use_dual_cutout']:
             self._add_dual_cutout()
-        self._add_to_tensor()
+
+        if self.config['dataset'] in ['KMNIST', 'K49']:
+            self._add_np2pil()
+            self._add_grayscale()        
+            self._add_to_tensor() 
+            self._add_normalization()
+        else:
+            self._add_normalization_custom()
+            self._add_to_tensor_custom()
         return torchvision.transforms.Compose(self._train_transforms)
 
     def _get_test_transform(self):
-        transform = torchvision.transforms.Compose([
-            transforms.Normalize(self.mean, self.std),
-            transforms.ToTensor(),
-        ])
+        if self.config['dataset'] in ['KMNIST', 'K49']:
+            transform = torchvision.transforms.Compose([ 
+                torchvision.transforms.Grayscale(1),                
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize(self.mean, self.std)
+            ])
+        else:
+            transform = torchvision.transforms.Compose([ 
+                transforms.Normalize(self.mean, self.std),
+                transforms.ToTensor()
+            ])
         return transform
 
 
@@ -118,6 +158,9 @@ class MNIST(Dataset):
         elif config['dataset'] == 'KMNIST':
             self.mean = np.array([0.1904])
             self.std = np.array([0.3475])
+        elif config['dataset'] == 'K49':
+            self.mean = np.array([0.1904])
+            self.std = np.array([0.3475])
         super(MNIST, self).__init__(config)
 
 
@@ -132,12 +175,12 @@ def get_loader(config):
 
     dataset_name = config['dataset']
     assert dataset_name in [
-        'CIFAR10', 'CIFAR100', 'MNIST', 'FashionMNIST', 'KMNIST'
+        'CIFAR10', 'CIFAR100', 'MNIST', 'FashionMNIST', 'KMNIST', 'K49'
     ]
 
     if dataset_name in ['CIFAR10', 'CIFAR100']:
         dataset = CIFAR(config)
-    elif dataset_name in ['MNIST', 'FashionMNIST', 'KMNIST']:
+    elif dataset_name in ['MNIST', 'FashionMNIST', 'KMNIST', 'K49']:
         dataset = MNIST(config)
 
     train_dataset, test_dataset = dataset.get_datasets()
