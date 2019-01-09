@@ -29,7 +29,7 @@ torch.backends.cudnn.benchmark = True
 logging.basicConfig(
     format='[%(asctime)s %(name)s %(levelname)s] - %(message)s',
     datefmt='%Y/%m/%d %H:%M:%S',
-    level=logging.DEBUG)
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 global_step = 0
@@ -119,7 +119,7 @@ def parse_args():
         '--dataset',
         type=str,
         default='CIFAR10',
-        choices=['CIFAR10', 'CIFAR100', 'MNIST', 'FashionMNIST', 'KMNIST'])
+        choices=['CIFAR10', 'CIFAR100', 'MNIST', 'FashionMNIST', 'KMNIST', 'K49'])
     parser.add_argument('--num_workers', type=int, default=7)
     # standard data augmentation
     parser.add_argument('--use_random_crop', type=str2bool)
@@ -320,6 +320,8 @@ def test(epoch, model, criterion, test_loader, run_config, writer):
 
     loss_meter = AverageMeter()
     correct_meter = AverageMeter()
+    correct_per_class = np.zeros(49)
+    total_per_class = np.zeros(49)
     start = time.time()
     with torch.no_grad():
         for step, (data, targets) in enumerate(test_loader):
@@ -341,16 +343,24 @@ def test(epoch, model, criterion, test_loader, run_config, writer):
             _, preds = torch.max(outputs, dim=1)
 
             loss_ = loss.item()
-            correct_ = preds.eq(targets).sum().item()
+            correct__ = preds.eq(targets)#.sum().item()
+
+            for corr, target in zip(correct__, targets):
+                correct_per_class[target] += corr.type(torch.int32)
+                total_per_class[target] += 1
+
+            correct_ = correct__.sum().item()
+
             num = data.size(0)
 
             loss_meter.update(loss_, num)
             correct_meter.update(correct_, 1)
 
         accuracy = correct_meter.sum / len(test_loader.dataset)
+        balanced_accuracy = (correct_per_class / total_per_class).sum() / 49
 
-        logger.info('Epoch {} Loss {:.4f} Accuracy {:.4f}'.format(
-            epoch, loss_meter.avg, accuracy))
+        logger.info('Epoch {} Loss {:.4f} Accuracy {:.4f} Balanced Accuracy {:.4f}'.format(
+            epoch, loss_meter.avg, accuracy, balanced_accuracy))
 
         elapsed = time.time() - start
         logger.info('Elapsed {:.2f}'.format(elapsed))

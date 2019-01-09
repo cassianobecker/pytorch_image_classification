@@ -274,7 +274,7 @@ def _cleanup_args(args):
 
     # standard data augmentation
     if args.use_random_crop is None:
-        if args.dataset in ['CIFAR10', 'CIFAR100', 'FashionMNIST', 'KMNIST']:
+        if args.dataset in ['CIFAR10', 'CIFAR100', 'FashionMNIST', 'KMNIST', 'K49']:
             args.use_random_crop = True
         else:
             args.use_random_crop = False
@@ -326,6 +326,9 @@ def _cleanup_args(args):
     elif args.dataset == 'CIFAR100':
         args.input_shape = (1, 3, 32, 32)
         args.n_classes = 100
+    elif args.dataset == 'K49':
+        args.input_shape = (1, 1, 28, 28)
+        args.n_classes = 49
     elif 'MNIST' in args.dataset:
         args.input_shape = (1, 1, 28, 28)
         args.n_classes = 10
