@@ -1,4 +1,4 @@
-# This is a fork of the original PyTorch Image Classification
+### This is a fork of the original PyTorch Image Classification
 
 
 # PyTorch Image Classification
@@ -62,6 +62,30 @@ $ ./main.py --arch wrn --outdir results --scheduler cosine
 ```
 
 
+## Results on Kuzushiji-49
+
+### Comparison of models and different batch size
+
+| Model                                  | Batch size | Balanced accuracy | # of epochs | Training time |
+|:---------------------------------------|:----------:|:-----------------:|:-----------:|:-------------:| 
+| DenseNet-100 (k=12)                    |  1536      | 96.03             | 1000        | 34h27m        |
+| DenseNet-100 (k=12)                    |  1536      | 97.32             | 1500        | 47h39m        |
+| Shake-Shake-26 2x96d                   |  512       | 97.41             | 1000        | 47h21m        |
+| Shake-Shake-26 2x96d                   |  1024      | 97.57             | 1000        | 41h14m        |
+
+### Comparison of different settings when using Shake-Shake model
+
+| Model                                  | Batch size | Balanced accuracy | # of epochs | Training time |
+|:---------------------------------------|:----------:|:-----------------:|:-----------:|:-------------:|
+| Shake-Shake-26 2x96d                   |  1024      | 97.69             | 1150        | 47h25m        |
+| Shake-Shake-26 2x96d *                 |  2048      | 97.78             | 1150        | 21h45m        |
+| Shake-Shake-26 2x96d *                 |  2048      | 98.05             | 1800        | 34h25m        |
+| Shake-Shake-26 2x96d (cutout 14)       |  1024      | 98.18             | 1150        | 47h3m         |
+| Shake-Shake-26 2x96d (mixup alpha=1)   |  1024      | 97.64             | 1150        | 47h14m        |
+| Shake-Shake-26 2x96d (cutout 14) *     |  2048      |                   |             |               |
+| Shake-Shake-26 2x96d (cutout 14) *     |  2048      |                   |             |               |
+
+* run on eight Tesla V100 GPUs; other experiments were run on four Tesla P100 GPUs
 
 ## Results on CIFAR-10
 
