@@ -85,7 +85,7 @@ $ ./main.py --arch wrn --outdir results --scheduler cosine
 | Shake-Shake-26 2x96d (cutout 14) *     |  2048      |                   |             |               |
 | Shake-Shake-26 2x96d (cutout 14) *     |  2048      |                   |             |               |
 
-* run on eight Tesla V100 GPUs; other experiments were run on four Tesla P100 GPUs
+\* run on eight Tesla V100 GPUs; other experiments were run on four Tesla P100 GPUs
 
 ## Results on CIFAR-10
 
