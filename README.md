@@ -82,8 +82,8 @@ $ ./main.py --arch wrn --outdir results --scheduler cosine
 | Shake-Shake-26 2x96d *                 |  2048      | 98.05             | 1800        | 34h25m        |
 | Shake-Shake-26 2x96d (cutout 14)       |  1024      | 98.18             | 1150        | 47h3m         |
 | Shake-Shake-26 2x96d (mixup alpha=1)   |  1024      | 97.64             | 1150        | 47h14m        |
-| Shake-Shake-26 2x96d (cutout 14) *     |  2048      |                   |             |               |
-| Shake-Shake-26 2x96d (cutout 14) *     |  2048      |                   |             |               |
+| Shake-Shake-26 2x96d (cutout 14) *     |  2048      | 98.17             | 1150        | 23h27m        |
+| Shake-Shake-26 2x96d (cutout 14) *     |  2048      | 98.20             | 1800        | 36h15m        |
 
 \* run on eight Tesla V100 GPUs; other experiments were run on four Tesla P100 GPUs
 
