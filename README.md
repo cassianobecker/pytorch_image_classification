@@ -87,6 +87,11 @@ $ ./main.py --arch wrn --outdir results --scheduler cosine
 
 \* run on eight Tesla V100 GPUs; other experiments were run on four Tesla P100 GPUs
 
+Here are the training arguments used to achieve the best balanced accuracy.
+```
+python train.py --dataset K49 --arch shake_shake --depth 26 --base_channels 96 --shake_forward True --shake_backward True --shake_image True --seed 7 --outdir results/k49/shake_shake_26_2x96d_cutout14/04 --epochs 1800 --scheduler cosine --base_lr 0.2 --batch_size 2048 --use_cutout --cutout_size 14
+```
+
 ## Results on CIFAR-10
 
 ### Results using almost same settings as papers
