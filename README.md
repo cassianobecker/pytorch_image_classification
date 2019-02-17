@@ -71,7 +71,7 @@ $ ./main.py --arch wrn --outdir results --scheduler cosine
 | DenseNet-100 (k=12)                    |  1536      | 96.03             | 1000        | 34h27m        |
 | DenseNet-100 (k=12)                    |  1536      | 97.32             | 1500        | 47h39m        |
 | Shake-Shake-26 2x96d                   |  512       | 97.41             | 1000        | 47h21m        |
-| Shake-Shake-26 2x96d                   |  1024      | 97.57             | 1000        | 41h14m        |
+| Shake-Shake-26 2x96d                   |  1024      | **97.57**         | 1000        | 41h14m        |
 
 ### Comparison of different settings when using Shake-Shake model
 
@@ -83,7 +83,7 @@ $ ./main.py --arch wrn --outdir results --scheduler cosine
 | Shake-Shake-26 2x96d (cutout 14)       |  1024      | 98.10             | 1100        | 47h3m         |
 | Shake-Shake-26 2x96d (mixup alpha=1)   |  1024      | 97.42             | 1100        | 47h14m        |
 | Shake-Shake-26 2x96d (cutout 14) *     |  2048      | 98.16             | 1100        | 23h27m        |
-| Shake-Shake-26 2x96d (cutout 14) *     |  2048      | 98.29             | 1800        | 36h15m        |
+| Shake-Shake-26 2x96d (cutout 14) *     |  2048      | **98.29**         | 1800        | 36h15m        |
 
 \* run on eight Tesla V100 GPUs; other experiments were run on four Tesla P100 GPUs
 
