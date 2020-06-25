@@ -154,6 +154,8 @@ def parse_args():
     parser.add_argument('--label_smoothing_epsilon', type=float, default=0.1)
     # fp16
     parser.add_argument('--fp16', action='store_true')
+    # tubify
+    parser.add_argument('--tubify', action='store_true')
 
     args = parser.parse_args()
     if not is_tensorboard_available:
@@ -449,7 +451,7 @@ def main():
                 layer.float()
 
     device = run_config['device']
-    if device is not 'cpu' and torch.cuda.device_count() > 1:
+    if device != 'cpu' and torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
     model.to(device)
     logger.info('Done')

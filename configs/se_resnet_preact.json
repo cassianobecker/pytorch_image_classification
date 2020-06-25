@@ -1,6 +1,6 @@
 {
   "model_config": {
-    "arch": "resnet_preact",
+    "arch": "se_resnet_preact",
     "base_channels": 16,
     "block_type": "basic",
     "depth": 110,

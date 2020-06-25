@@ -130,6 +130,7 @@ def _get_data_config(args):
     keys = [
         'dataset',
         'n_classes',
+        'tubify',
         'num_workers',
         'batch_size',
         'use_random_crop',
@@ -226,10 +227,10 @@ def _cleanup_args(args):
         args.use_bn = None
     if args.arch not in [
             'resnet', 'resnet_preact', 'densenet', 'pyramidnet',
-            'se_resnet_preact'
+            'se_resnet_preact', 'resnet_preact_3d'
     ]:
         args.block_type = None
-    if args.arch not in ['resnet_preact', 'se_resnet_preact']:
+    if args.arch not in ['resnet_preact', 'se_resnet_preact', 'resnet_preact_3d']:
         args.remove_first_relu = None
         args.add_last_bn = None
         args.preact_stage = None
@@ -330,8 +331,12 @@ def _cleanup_args(args):
         args.input_shape = (1, 1, 28, 28)
         args.n_classes = 49
     elif 'MNIST' in args.dataset:
-        args.input_shape = (1, 1, 28, 28)
         args.n_classes = 10
+        if args.tubify is True:
+            args.input_shape = (1, 1, 6, 28, 28)
+        else:
+            args.input_shape = (1, 1, 28, 28)
+
 
     return args
 

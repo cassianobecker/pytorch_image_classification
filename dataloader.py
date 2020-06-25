@@ -16,9 +16,8 @@ class Dataset:
     def __init__(self, config):
         self.config = config
         dataset_rootdir = pathlib.Path('~/.torchvision/datasets').expanduser()
-        if self.config['dataset'] == 'KMNIST':
-            self.dataset_dir = pathlib.Path('~/data/Kuzushiji/Kuzushiji-MNIST').expanduser()
-        elif self.config['dataset'] == 'K49':
+        
+        if self.config['dataset'] == 'K49':
             self.dataset_dir = pathlib.Path('~/data/Kuzushiji/Kuzushiji-49').expanduser()
         else:
             self.dataset_dir = dataset_rootdir / config['dataset']
@@ -28,7 +27,7 @@ class Dataset:
         self.test_transform = self._get_test_transform()
 
     def get_datasets(self):
-        if self.config['dataset'] in ['KMNIST', 'K49']:
+        if self.config['dataset'] in ['K49']:
             train_dataset = torchvision.datasets.ImageFolder(
                 self.dataset_dir / 'train',
                 transform=self.train_transform)
@@ -109,29 +108,68 @@ class Dataset:
         elif self.config['use_dual_cutout']:
             self._add_dual_cutout()
 
-        if self.config['dataset'] in ['KMNIST', 'K49']:
+        if self.config['dataset'] in ['K49']:
             self._add_np2pil()
             self._add_grayscale()        
             self._add_to_tensor() 
             self._add_normalization()
-        else:
-            self._add_normalization_custom()
-            self._add_to_tensor_custom()
+
+        self._add_normalization_custom()
+
+        # added for tubify
+        if self.config['tubify'] is True:
+            self._add_train_tubify()
+
+        self._add_to_tensor_custom()
+
         return torchvision.transforms.Compose(self._train_transforms)
 
     def _get_test_transform(self):
-        if self.config['dataset'] in ['KMNIST', 'K49']:
+        if self.config['dataset'] in ['K49']:
             transform = torchvision.transforms.Compose([ 
                 torchvision.transforms.Grayscale(1),                
                 torchvision.transforms.ToTensor(),
                 torchvision.transforms.Normalize(self.mean, self.std)
             ])
+        if self.config['tubify'] is True:
+                transform = torchvision.transforms.Compose([
+                    transforms.Normalize(self.mean, self.std),
+                    transforms.ToTensor(),
+                    Tubify()
+                ])
         else:
-            transform = torchvision.transforms.Compose([ 
+            transform = torchvision.transforms.Compose([
                 transforms.Normalize(self.mean, self.std),
-                transforms.ToTensor()
+                transforms.ToTensor(),
             ])
         return transform
+
+    # added for tubify
+    def _add_train_tubify(self):
+        self._train_transforms.append(Tubify())
+
+    # added for tubify
+    def _add_test_tubify(self):
+        self._test_transforms.append(Tubify())
+
+
+# added for tubify
+class Tubify():
+
+    def __init__(self, d=6) -> None:
+        super().__init__()
+        self.d = d
+
+    def __call__(self, img):
+
+        img3d = []
+        for k in range(self.d):
+            mu = np.exp(-(1 / self.d) * (k - (self.d / 2)) ** 2)
+            img3d.append(img * mu)
+
+        new_img = np.expand_dims(np.array(img3d), axis=0)
+
+        return new_img
 
 
 class CIFAR(Dataset):
@@ -184,6 +222,8 @@ def get_loader(config):
         dataset = MNIST(config)
 
     train_dataset, test_dataset = dataset.get_datasets()
+
+    # num_workers = 0
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset,

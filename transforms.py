@@ -12,6 +12,8 @@ class ToTensor:
     def _to_tensor(self, data):
         if len(data.shape) == 3:
             return torch.from_numpy(data.transpose(2, 0, 1).astype(np.float32))
+        elif len(data.shape) == 4:
+            return torch.from_numpy(data.transpose(0, 1, 2, 3).astype(np.float32))
         else:
             return torch.from_numpy(data[None, :, :].astype(np.float32))
 
