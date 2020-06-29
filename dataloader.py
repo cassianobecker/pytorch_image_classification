@@ -134,8 +134,8 @@ class Dataset:
         if self.config['tubify'] is True:
                 transform = torchvision.transforms.Compose([
                     transforms.Normalize(self.mean, self.std),
+                    Tubify(),
                     transforms.ToTensor(),
-                    Tubify()
                 ])
         else:
             transform = torchvision.transforms.Compose([
